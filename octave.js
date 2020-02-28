@@ -1,10 +1,12 @@
+"use strict";
+
 /**
  * Function generator for generating n-dimen arrays initialized with some value
  *  Modified version of https://stackoverflow.com/a/16357947
  *
  *  @param {Integer} init: if it's undefined, fill random values else fill init
  */
-function nDArrayGenerator(init) {
+const nDArrayGenerator = init => {
   const func = function(...dimens) {
     let ret = undefined;
 
@@ -26,7 +28,7 @@ function nDArrayGenerator(init) {
   };
 
   return func;
-}
+};
 
 /**
  * Replicates octave's rand function behaviour
@@ -59,7 +61,25 @@ const zeros = nDArrayGenerator(0);
  * Example:
  *  ones(1, 2, 3)
  */
-ones = nDArrayGenerator(1);
+const ones = nDArrayGenerator(1);
+
+/**
+ * Replicates octave's shape behaviour
+ *  Return the `shape` of the array
+ *  Modified version of https://gist.github.com/srikumarks/4303229
+ *
+ * @param {Array} mat - The matrix whose shape is to be calculated
+ *
+ * Example:
+ *  shape(ones(1, 2, 3))
+ */
+const shape = mat => {
+  if (mat instanceof Array) {
+    return [mat.length].concat(shape(mat[0]));
+  } else {
+    return [];
+  }
+};
 
 /*
  * Examples
@@ -67,3 +87,5 @@ ones = nDArrayGenerator(1);
 console.log(rand(1, 2, 3));
 console.log(ones(1, 2, 3));
 console.log(zeros(1, 2, 3));
+
+console.log(shape(zeros(1, 2, 3)));
