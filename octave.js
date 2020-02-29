@@ -128,6 +128,32 @@ function transpose(matrix) {
     return matrix.map(x => [x]);
 }
 
+function repMat(matrix, rowRep = 1, colRep = 1) {
+    let rows = matrix.length,
+        cols = matrix[0].length;
+
+    // in case of row matrix
+    if (!Number.isInteger(cols)) {
+        matrix = [matrix];
+        cols = rows;
+        rows = 1;
+    }
+
+    const newRows = rowRep * rows,
+        newCols = colRep * cols,
+        res = [];
+
+    for (let i = 0; i < newRows; i++) {
+        const row = [];
+        for (let j = 0; j < newCols; j++) {
+            row.push(matrix[i % rows][j % cols]);
+        }
+        res.push(row);
+    }
+
+    return res;
+}
+
 /*
  * Examples
  */
@@ -144,8 +170,22 @@ console.log(indexer(testArr, [undefined, [1, 2]]));
 console.log(indexer(testArr, [[1, 2], [1, 2]]));
 console.log(indexer(testArr, [undefined, undefined]));
 
+const matrices = [
+    [[1, 2, 3], [4, 5, 6]],
+    [1, 2, 3],
+    [[1], [2], [3]],
+];
+
 console.log("Tranpose test");
 
-console.log(transpose([[1, 2, 3], [4, 5, 6]]));
-console.log(transpose([1, 2, 3]));
-console.log(transpose([[1], [2], [3]]));
+for (const mat of matrices) { console.log(transpose(mat)); }
+
+console.log("Repmat test");
+
+for (const mat of matrices) {
+    console.log(repMat(mat));
+    console.log(repMat(mat, 2));
+    console.log(repMat(mat, undefined, 2));
+    console.log(repMat(mat, 2, 2));
+    console.log("---");
+}
