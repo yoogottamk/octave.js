@@ -62,6 +62,7 @@
                 "code": 100
             }
         ],
+        "no-console": "off",
         "no-continue": "off",
         "linebreak-style": "off",
         "class-methods-use-this": "off"
