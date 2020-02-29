@@ -78,6 +78,27 @@ function shape(mat) {
     return [];
 }
 
+/**
+ *
+ * @param {Array} array
+ * @param {Array<Array<Number>>} dims each entry is either tuple or undefined (indicating :)
+ */
+function indexer(array, dims) {
+    function singleIndex(arr, index) {
+        if (index) {
+            return arr.slice(index[0], index[1]);
+        }
+        return arr;
+    }
+
+    const res = singleIndex(array, dims[0]);
+    if (dims.length === 1) {
+        return res;
+    }
+
+    return res.map(row => indexer(row, dims.slice(1)));
+}
+
 /*
  * Examples
  */
@@ -86,3 +107,10 @@ console.log(ones(1, 2, 3));
 console.log(zeros(1, 2, 3));
 
 console.log(shape(zeros(1, 2, 3)));
+
+console.log("Indexer test");
+
+const testArr = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+console.log(indexer(testArr, [undefined, [1, 2]]));
+console.log(indexer(testArr, [[1, 2], [1, 2]]));
+console.log(indexer(testArr, [undefined, undefined]));
