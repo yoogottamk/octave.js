@@ -99,6 +99,35 @@ function indexer(array, dims) {
     return res.map(row => indexer(row, dims.slice(1)));
 }
 
+/**
+ *
+ * @param {Array} matrix
+ */
+function transpose(matrix) {
+    if (Array.isArray(matrix[0])) {
+        const rows = matrix.length,
+            cols = matrix[0].length,
+            res = [];
+
+
+        for (let j = 0; j < cols; j++) {
+            const row = [];
+            for (let i = 0; i < rows; i++) {
+                row.push(matrix[i][j]);
+            }
+            // column vector becomes row vector
+            if (cols === 1) { return row; }
+            res.push(row);
+        }
+
+        return res;
+    }
+
+
+    // row vector, make into column
+    return matrix.map(x => [x]);
+}
+
 /*
  * Examples
  */
@@ -114,3 +143,9 @@ const testArr = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
 console.log(indexer(testArr, [undefined, [1, 2]]));
 console.log(indexer(testArr, [[1, 2], [1, 2]]));
 console.log(indexer(testArr, [undefined, undefined]));
+
+console.log("Tranpose test");
+
+console.log(transpose([[1, 2, 3], [4, 5, 6]]));
+console.log(transpose([1, 2, 3]));
+console.log(transpose([[1], [2], [3]]));
