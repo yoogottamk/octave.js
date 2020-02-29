@@ -78,6 +78,82 @@ function shape(mat) {
     return [];
 }
 
+/**
+ *
+ * @param {Array} array
+ * @param {Array<Array<Number>>} dims each entry is either tuple or undefined (indicating :)
+ */
+function indexer(array, dims) {
+    function singleIndex(arr, index) {
+        if (index) {
+            return arr.slice(index[0], index[1]);
+        }
+        return arr;
+    }
+
+    const res = singleIndex(array, dims[0]);
+    if (dims.length === 1) {
+        return res;
+    }
+
+    return res.map(row => indexer(row, dims.slice(1)));
+}
+
+/**
+ *
+ * @param {Array} matrix
+ */
+function transpose(matrix) {
+    if (Array.isArray(matrix[0])) {
+        const rows = matrix.length,
+            cols = matrix[0].length,
+            res = [];
+
+
+        for (let j = 0; j < cols; j++) {
+            const row = [];
+            for (let i = 0; i < rows; i++) {
+                row.push(matrix[i][j]);
+            }
+            // column vector becomes row vector
+            if (cols === 1) { return row; }
+            res.push(row);
+        }
+
+        return res;
+    }
+
+
+    // row vector, make into column
+    return matrix.map(x => [x]);
+}
+
+function repMat(matrix, rowRep = 1, colRep = 1) {
+    let rows = matrix.length,
+        cols = matrix[0].length;
+
+    // in case of row matrix
+    if (!Number.isInteger(cols)) {
+        matrix = [matrix];
+        cols = rows;
+        rows = 1;
+    }
+
+    const newRows = rowRep * rows,
+        newCols = colRep * cols,
+        res = [];
+
+    for (let i = 0; i < newRows; i++) {
+        const row = [];
+        for (let j = 0; j < newCols; j++) {
+            row.push(matrix[i % rows][j % cols]);
+        }
+        res.push(row);
+    }
+
+    return res;
+}
+
 /*
  * Examples
  */
@@ -86,3 +162,30 @@ console.log(ones(1, 2, 3));
 console.log(zeros(1, 2, 3));
 
 console.log(shape(zeros(1, 2, 3)));
+
+console.log("Indexer test");
+
+const testArr = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+console.log(indexer(testArr, [undefined, [1, 2]]));
+console.log(indexer(testArr, [[1, 2], [1, 2]]));
+console.log(indexer(testArr, [undefined, undefined]));
+
+const matrices = [
+    [[1, 2, 3], [4, 5, 6]],
+    [1, 2, 3],
+    [[1], [2], [3]],
+];
+
+console.log("Tranpose test");
+
+for (const mat of matrices) { console.log(transpose(mat)); }
+
+console.log("Repmat test");
+
+for (const mat of matrices) {
+    console.log(repMat(mat));
+    console.log(repMat(mat, 2));
+    console.log(repMat(mat, undefined, 2));
+    console.log(repMat(mat, 2, 2));
+    console.log("---");
+}
