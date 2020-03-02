@@ -176,7 +176,15 @@ function transpose(matrix) {
     return matrix.map(x => [x]);
 }
 
+/**
+ *
+ * @param {Number|Array<any>|Array<Array<any>>} matrix
+ * @param {Number} rowRep
+ * @param {Number} colRep
+ */
 function repMat(matrix, rowRep = 1, colRep = 1) {
+    if (!Array.isArray(matrix)) { matrix = [[matrix]]; }
+
     let rows = matrix.length,
         cols = matrix[0].length;
 
