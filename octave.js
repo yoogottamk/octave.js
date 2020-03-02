@@ -79,6 +79,16 @@ function shape(mat) {
 }
 
 /**
+ * inclusive endpoints
+ * @param {Number} a
+ * @param {Number} b
+ */
+function randInt(a, b) {
+    const len = b - a + 1;
+    return Math.floor(Math.random() * len) + a;
+}
+
+/**
  * @param {Array} arr
  * @param {Array<Number>|Number} index
  */
@@ -192,6 +202,54 @@ function repMat(matrix, rowRep = 1, colRep = 1) {
     return res;
 }
 
+/**
+ * @param {Number} n
+ */
+function randPerm(n) {
+    const arr = Array(n);
+
+    for (let i = 0; i < n; i++) {
+        arr[i] = i + 1;
+        const swapIdx = randInt(0, i),
+            tmp = arr[i];
+        arr[i] = arr[swapIdx];
+        arr[swapIdx] = tmp;
+    }
+
+
+    return arr;
+}
+
+/**
+ *
+ * @param {Array<Any>} arr
+ */
+function maxNDArray(arr) {
+    let mx = -1;
+
+    for (const val of arr) {
+        let used;
+        if (Array.isArray(val)) {
+            used = maxNDArray(val);
+        } else {
+            used = val;
+        }
+        mx = Math.max(mx, used);
+    }
+
+    return mx;
+}
+
+function applyOnEach(arr, func) {
+    for (let i = 0; i < arr.length; i++) {
+        if (Array.isArray(arr[i])) {
+            applyOnEach(arr[i], func);
+        } else {
+            arr[i] = func(arr[i]);
+        }
+    }
+}
+
 /*
  * Examples
  */
@@ -242,3 +300,11 @@ lhsIndexer(
     100,
 );
 console.log(matrix);
+
+console.log("----");
+console.log("Generating random permutations of size 10");
+
+console.log(randPerm(10));
+console.log(randPerm(10));
+console.log(randPerm(10));
+console.log(randPerm(10));
