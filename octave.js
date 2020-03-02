@@ -79,24 +79,72 @@ function shape(mat) {
 }
 
 /**
+ * inclusive endpoints
+ * @param {Number} a
+ * @param {Number} b
+ */
+function randInt(a, b) {
+    const len = b - a + 1;
+    return Math.floor(Math.random() * len) + a;
+}
+
+/**
+ * @param {Array} arr
+ * @param {Array<Number>|Number} index
+ */
+function getLowerUpperSliceIndex(arr, index) {
+    if (index) {
+        if (Array.isArray(index)) { return [index[0] || 0, index[1] || arr.length]; }
+
+        return [index, index + 1];
+    }
+
+    return [0, arr.length];
+}
+
+/**
+ * slice indexing on array
+ * @param {Array} arr
+ * @param {Array<Number>|Number} index
+ */
+function singleIndex(arr, index) {
+    return arr.slice(...getLowerUpperSliceIndex(arr, index));
+}
+
+/**
  *
  * @param {Array} array
  * @param {Array<Array<Number>>} dims each entry is either tuple or undefined (indicating :)
  */
 function indexer(array, dims) {
-    function singleIndex(arr, index) {
-        if (index) {
-            return arr.slice(index[0], index[1]);
-        }
-        return arr;
-    }
-
     const res = singleIndex(array, dims[0]);
     if (dims.length === 1) {
         return res;
     }
 
     return res.map(row => indexer(row, dims.slice(1)));
+}
+
+/**
+ * @param {Array} array
+ * @param {Array<Array<Number>>} dims each entry is either tuple or undefined (indicating :)
+ * @param {Array} arrayToAssign
+ */
+function lhsIndexer(array, dims, arrayToAssign) {
+    // both indices inclusive
+    const [lower, upper] = getLowerUpperSliceIndex(array, dims[0]),
+        dimsToSend = dims.slice ? dims.slice(1) : undefined,
+        isArray = Array.isArray(arrayToAssign);
+
+    for (let i = lower; i < upper; i++) {
+        const val = isArray ? arrayToAssign[i - lower] : arrayToAssign;
+
+        if (dims.length === 1) {
+            array[i] = val;
+        } else {
+            lhsIndexer(array[i], dimsToSend, val);
+        }
+    }
 }
 
 /**
@@ -128,7 +176,15 @@ function transpose(matrix) {
     return matrix.map(x => [x]);
 }
 
+/**
+ *
+ * @param {Number|Array<any>|Array<Array<any>>} matrix
+ * @param {Number} rowRep
+ * @param {Number} colRep
+ */
 function repMat(matrix, rowRep = 1, colRep = 1) {
+    if (!Array.isArray(matrix)) { matrix = [[matrix]]; }
+
     let rows = matrix.length,
         cols = matrix[0].length;
 
@@ -152,6 +208,62 @@ function repMat(matrix, rowRep = 1, colRep = 1) {
     }
 
     return res;
+}
+
+/**
+ * @param {Number} n
+ */
+function randPerm(n) {
+    const arr = Array(n);
+
+    for (let i = 0; i < n; i++) {
+        arr[i] = i + 1;
+        const swapIdx = randInt(0, i),
+            tmp = arr[i];
+        arr[i] = arr[swapIdx];
+        arr[swapIdx] = tmp;
+    }
+
+
+    return arr;
+}
+
+/**
+ *
+ * @param {Array<Any>} arr
+ */
+function maxNDArray(arr) {
+    let mx = -1;
+
+    for (const val of arr) {
+        let used;
+        if (Array.isArray(val)) {
+            used = maxNDArray(val);
+        } else {
+            used = val;
+        }
+        mx = Math.max(mx, used);
+    }
+
+    return mx;
+}
+
+function applyOnEach(arr, func) {
+    for (let i = 0; i < arr.length; i++) {
+        if (Array.isArray(arr[i])) {
+            applyOnEach(arr[i], func);
+        } else {
+            arr[i] = func(arr[i]);
+        }
+    }
+}
+
+/**
+ * converter for `X(:)` notation
+ * @param {Array<Any>} arr
+ */
+function flatAndTranspose(arr) {
+    return transpose(arr.flat());
 }
 
 /*
@@ -189,3 +301,26 @@ for (const mat of matrices) {
     console.log(repMat(mat, 2, 2));
     console.log("---");
 }
+
+console.log("LHS indexer test");
+
+const matrix = [
+    [[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 10], [11, 12]],
+    [[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 10], [11, 12]],
+];
+
+console.log(matrix);
+lhsIndexer(
+    matrix,
+    [undefined, [1, 2], 1],
+    100,
+);
+console.log(matrix);
+
+console.log("----");
+console.log("Generating random permutations of size 10");
+
+console.log(randPerm(10));
+console.log(randPerm(10));
+console.log(randPerm(10));
+console.log(randPerm(10));
