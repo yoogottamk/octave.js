@@ -258,6 +258,14 @@ function applyOnEach(arr, func) {
     }
 }
 
+/**
+ * converter for `X(:)` notation
+ * @param {Array<Any>} arr
+ */
+function flatAndTranspose(arr) {
+    return transpose(arr.flat());
+}
+
 /*
  * Examples
  */
